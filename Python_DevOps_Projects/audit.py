@@ -2,6 +2,7 @@ import os
 import shutil
 import platform
 import getpass
+import datetime
 
 def audit_my_repo():
     # 1. Узнаем, кто тут Босс и на чем сидит
@@ -36,6 +37,26 @@ def audit_my_repo():
     else:
         print("✅ ВСЁ ХОРОШО: Места полно, кодим дальше! ✨")
     print(f"------------------------------\n")
-
+ 
+    # 5. Проверяем папку для логов
+    if not os.path.exists('LOGS'):
+        os.mkdir('LOGS')
+        print("📁 Папка LOGS создана!")
+    else:
+        print("✅ Папка LOGS уже существует.")
+   
+    # 6. ЗАПИСЬ В ЛОГ 
+    log_path = os.path.join('LOGS', 'report.txt')
+    
+    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")    
+    with open(log_path, 'a', encoding='utf-8') as f:
+        f.write("\n" + "="*30 + "\n")
+        f.write(f"Время отчета: {now}\n")
+        f.write(f"Отчет от {user}\n")
+        f.write(f"Система: {system}\n")
+        f.write(f"Проектов найдено: {len(directories)}\n")
+        f.write(f"Свободно места: {free_gb} GB\n")
+        f.write(f"Время отчета: {now}\n")    
+    print(f"📝 Отчет сохранен в {log_path}! ")
 if __name__ == "__main__":
     audit_my_repo()
