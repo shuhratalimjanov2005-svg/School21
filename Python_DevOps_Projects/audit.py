@@ -4,10 +4,11 @@ import platform
 import getpass
 from datetime import datetime
 import requests
+import psutil
+import time
 
-# 1. Твои секретные данные из image_49427b.png
 TOKEN = "8874275515:AAHjSErhnhlcvLqMgq4G8H0UtHHK9nAS9RU"
-CHAT_ID = 8278904536 # Не забудь вставить свой ID!
+CHAT_ID = 8278904536 
 
 def send_telegram(message):
     try:
@@ -33,9 +34,22 @@ def audit_my_repo():
     total, used, free = shutil.disk_usage("/")
     free_gb = free // (2**30)
 
+    # --- МОНИТОРИНГ RAM ---
+    memory = psutil.virtual_memory()
+    ram_usage = memory.percent # Процент занятой памяти
+    free_ram_gb = memory.available // (1024**3) # Свободно в ГБ
+
+    # ... (старый вывод в консоль) ...
+    print(f"🧠 Оперативка: {ram_usage}% занято (Свободно: {free_ram_gb} GB)")
+
+    # --- НОВЫЙ АЛЕРТ ---
+    if ram_usage > 90:
+        print("🔥 КРИТИЧЕСКИЙ УРОВЕНЬ RAM!")
+        send_telegram(f"🚨Оперативка забита на {ram_usage}%!")
+
     # --- КРАСИВЫЙ ВЫВОД В КОНСОЛЬ ---
     print(f"\n{'='*30}")
-    print(f"💎 DevOps Report | {now}")
+    print(f" DevOps Report | {now}")
     print(f"{'='*30}")
     print(f"👤 Boss: {user} | 💻 OS: {system}")
     print(f"📁 Projects: {len(directories)} ({', '.join(directories) if directories else 'none'})")
@@ -64,5 +78,6 @@ def audit_my_repo():
     print(f"{'='*30}\n")
 
 if __name__ == "__main__":
-    # Скрипт сработает ТОЛЬКО когда мы запускаем его вручную: python audit.py
-    audit_my_repo()
+    while True:
+        audit_my_repo()
+        time.sleep(300) # Спим 5 минут и по ново
