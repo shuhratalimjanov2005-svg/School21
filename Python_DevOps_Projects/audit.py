@@ -2,61 +2,67 @@ import os
 import shutil
 import platform
 import getpass
-import datetime
+from datetime import datetime
+import requests
+
+# 1. Твои секретные данные из image_49427b.png
+TOKEN = "8874275515:AAHjSErhnhlcvLqMgq4G8H0UtHHK9nAS9RU"
+CHAT_ID = 8278904536 # Не забудь вставить свой ID!
+
+def send_telegram(message):
+    try:
+        url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={CHAT_ID}&text={message}"
+        requests.get(url, timeout=5)
+        response = requests.get(url)
+        print(response.json())
+    except Exception as e:
+        print(f"❌ Ошибка отправки в ТГ: {e}")
 
 def audit_my_repo():
-    # 1. Узнаем, кто тут Босс и на чем сидит
+    # --- ДАННЫЕ СИСТЕМЫ ---
     user = getpass.getuser()
     system = platform.system()
     current_dir = os.getcwd()
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # 2. Считаем проекты (твой старый добрый код)
+    # --- ПРОВЕРКА ПРОЕКТОВ ---
     all_items = os.listdir('.')
-    # Оставляем папки, которые не начинаются с точки
     directories = [d for d in all_items if os.path.isdir(d) and not d.startswith('.')]
 
-    # 3. ПРОВЕРКА ЖЕЛЕЗА (Наш новый DevOps-слой)
-    # Проверяем диск (корень "/")
+    # --- МОНИТОРИНГ ЖЕЛЕЗА ---
     total, used, free = shutil.disk_usage("/")
-    free_gb = free // (2**30)  # Конвертируем в Гб
+    free_gb = free // (2**30)
 
-    print(f"\n---  DevOps Audit Report  ---")
-    print(f"👤 Пользователь: {user}")
-    print(f"💻 Операционка: {system}")
-    print(f"📍 Где мы: {current_dir}")
-    print(f"📁 Активных проектов: {len(directories)} ({', '.join(directories)})")
-    
-    print(f"\n--- 💾 Состояние памяти ---")
-    print(f"Свободно на диске: {free_gb} GB")
+    # --- КРАСИВЫЙ ВЫВОД В КОНСОЛЬ ---
+    print(f"\n{'='*30}")
+    print(f"💎 DevOps Report | {now}")
+    print(f"{'='*30}")
+    print(f"👤 Boss: {user} | 💻 OS: {system}")
+    print(f"📁 Projects: {len(directories)} ({', '.join(directories) if directories else 'none'})")
+    print(f"💾 Free space: {free_gb} GB")
 
-    # 4. АВТО-ДИАГНОСТИКА (Скрипт начинает «думать»)
-    if free_gb < 5:
-        print("🛑 КРИТИЧЕСКИЙ УРОВЕНЬ: Срочно удаляй мусор!")
-    elif free_gb < 20:
-        print("⚠️ ПРЕДУПРЕЖДЕНИЕ: Место заканчивается. Будь аккуратнее. ")
-    else:
-        print("✅ ВСЁ ХОРОШО: Места полно, кодим дальше! ✨")
-    print(f"------------------------------\n")
- 
-    # 5. Проверяем папку для логов
+    # --- ПРОВЕРКА ПАПКИ ЛОГОВ ---
     if not os.path.exists('LOGS'):
         os.mkdir('LOGS')
-        print("📁 Папка LOGS создана!")
-    else:
-        print("✅ Папка LOGS уже существует.")
-   
-    # 6. ЗАПИСЬ В ЛОГ 
-    log_path = os.path.join('LOGS', 'report.txt')
     
-    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")    
+    # --- ЗАПИСЬ В ЛОГ ---
+    log_path = os.path.join('LOGS', 'report.txt')
+    log_entry = f"[{now}] User: {user} | Free: {free_gb}GB | Projects: {len(directories)}\n"
+    
     with open(log_path, 'a', encoding='utf-8') as f:
-        f.write("\n" + "="*30 + "\n")
-        f.write(f"Время отчета: {now}\n")
-        f.write(f"Отчет от {user}\n")
-        f.write(f"Система: {system}\n")
-        f.write(f"Проектов найдено: {len(directories)}\n")
-        f.write(f"Свободно места: {free_gb} GB\n")
-        f.write(f"Время отчета: {now}\n")    
-    print(f"📝 Отчет сохранен в {log_path}! ")
+        f.write(log_entry)
+
+    # --- АВТО-ДИАГНОСТИКА И ТЕЛЕГРАМ ---
+    if free_gb < 10:
+        print("🛑 КРИТИЧЕСКИЙ УРОВЕНЬ! Сигнал в ТГ отправлен.")
+        send_telegram(f"🚨 На сервере ({user}) осталось всего {free_gb}GB! Срочно спасаем ситуацию!")
+    elif free_gb < 20:
+        print("⚠️ ПРЕДУПРЕЖДЕНИЕ: Место заканчивается.")
+    else:
+        print("✅ ВСЁ ХОРОШО: Кодим дальше! ✨")
+    
+    print(f"{'='*30}\n")
+
 if __name__ == "__main__":
+    # Скрипт сработает ТОЛЬКО когда мы запускаем его вручную: python audit.py
     audit_my_repo()
