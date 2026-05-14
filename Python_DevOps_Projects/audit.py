@@ -21,12 +21,11 @@ def send_telegram(message):
 
 def save_to_db(usage, message):
     try:
-        # Подключаемся! Указываем порт 5433, как мы договорились
         connection = psycopg2.connect(
             user="postgres",
             password="mysecretpassword",
-            host="127.0.0.1",
-            port="5433",
+            host="db",          # МЕНЯЕМ: Указываем имя сервиса из docker-compose
+            port="5432",        # МЕНЯЕМ: Внутри сети Докера порт всегда 5432
             database="monitoring_db"
         )
         cursor = connection.cursor()
@@ -42,7 +41,7 @@ def save_to_db(usage, message):
     except Exception as error:
         print(f"Ошибка при работе с БД: {error}")
     
-    save_to_db(ram_usage, f"Алярм! RAM забит на {ram_usage}%")
+    
 
 def audit_my_repo():
     # --- ДАННЫЕ СИСТЕМЫ ---
@@ -66,9 +65,13 @@ def audit_my_repo():
 
     # ... (старый вывод в консоль) ...
     print(f"🧠 Оперативка: {ram_usage}% занято (Свободно: {free_ram_gb} GB)")
+    
+    # --- ЗАПИСЬ В БАЗУ ПРИ КАЖДОЙ ПРОВЕРКЕ ---
+    # Вызываем функцию здесь, а не внутри самой функции!
+    save_to_db(ram_usage, f"Отчёт: RAM {ram_usage}%")
 
     # --- НОВЫЙ АЛЕРТ ---
-    if ram_usage > 90:
+    if ram_usage > 5:
         print("🔥 КРИТИЧЕСКИЙ УРОВЕНЬ RAM!")
         send_telegram(f"🚨Оперативка забита на {ram_usage}%!")
 
