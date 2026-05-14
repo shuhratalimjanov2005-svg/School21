@@ -71,7 +71,7 @@ def audit_my_repo():
     save_to_db(ram_usage, f"Отчёт: RAM {ram_usage}%")
 
     # --- НОВЫЙ АЛЕРТ ---
-    if ram_usage > 5:
+    if ram_usage > 90:
         print("🔥 КРИТИЧЕСКИЙ УРОВЕНЬ RAM!")
         send_telegram(f"🚨Оперативка забита на {ram_usage}%!")
 

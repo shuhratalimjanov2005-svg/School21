@@ -8,8 +8,7 @@ WORKDIR /app
 COPY audit.py .
 
 # 4. Устанавливаем библиотеки (те самые requests и psutil)
-RUN pip install requests psutil
-RUN pip install psutil requests psycopg2-binary
+RUN pip install requests psutil psycopg2-binary
 
 # 5. Команда для запуска
 CMD ["python", "audit.py"]
