@@ -1,34 +1,41 @@
 version: '3.8'
 
 services:
-  # Наша база данных
   db:
     image: postgres:latest
     restart: always
     environment:
-      POSTGRES_PASSWORD: mysecretpassword
+      # Тут мы создаем базу и ГЛАВНОГО пользователя
       POSTGRES_DB: monitoring_db
+      POSTGRES_USER: user_devops
+      POSTGRES_PASSWORD: password123
     ports:
       - "5433:5432"
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
-  # Твой бот-аудитор
   bot:
-    build: . # Докер посмотрит в твой Dockerfile и соберет бота
+    build: .
     restart: always
     depends_on:
-      - db # Бот будет ждать, пока база задышит
+      - db
     environment:
-      # Передаем настройки прямо в код
       DB_HOST: db
       DB_PORT: 5432
       DB_NAME: monitoring_db
-  
-  
+      DB_USER: user_devops
+      DB_PASSWORD: password123
+
   web:
-    build: ./web_app  # путь к нашей новой папке
+    build: ./web_app
+    restart: always
     ports:
       - "8000:8000"
     depends_on:
       - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: monitoring_db
+      DB_USER: user_devops
+      DB_PASSWORD: password123
