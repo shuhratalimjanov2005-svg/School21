@@ -22,8 +22,8 @@ def send_telegram(message):
 def save_to_db(usage, message):
     try:
         connection = psycopg2.connect(
-            user="postgres",
-            password="mysecretpassword",
+            user="user_devops",
+            password="password123",
             host="db",          # МЕНЯЕМ: Указываем имя сервиса из docker-compose
             port="5432",        # МЕНЯЕМ: Внутри сети Докера порт всегда 5432
             database="monitoring_db"
