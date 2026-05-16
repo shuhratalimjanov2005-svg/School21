@@ -1,6 +1,5 @@
 #!/bin/bash
-echo " Запуск деплоя проекта..."
-git pull origin main  # Если пользуешься гитом
-sudo docker compose down
-sudo docker compose up -d --build
-echo "✅ Всё готово, пользователь! Бот в строю."
+echo "🚀 Запуск сборки Docker Compose..."
+docker-compose down
+docker-compose up --build -d
+echo "✅ Всё готово! Контейнеры подняты в фоне!"
