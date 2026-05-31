@@ -1,1 +1,6 @@
 .ssh/
+# Игнорируем всё, что создает Terraform
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
